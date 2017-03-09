@@ -21,19 +21,37 @@
 */
 
 import UIKit
-
+import RealmSwift
 
 class CategoriesTableViewController: UITableViewController {
-  
-  var categories = []
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-  }
-  
-  override var preferredStatusBarStyle : UIStatusBarStyle {
-    return .default
-  }
+    
+    let realm = try! Realm()
+    lazy var categories: Results<Category> = {self.realm.objects(Category.self) } ()
+    var selectedCategory: Category!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        populateDefaultCategories()
+    }
+    
+    override var preferredStatusBarStyle : UIStatusBarStyle {
+        return .default
+    }
+    func populateDefaultCategories() {
+        if categories.count == 0 {
+            try! realm.write() {
+                let defaultCategories = ["Birds", "Mammals", "Flora", "Reptiles", "Arachnids" ]
+                
+                for category in defaultCategories {
+                    let newCategory = Category()
+                    newCategory.name = category
+                    self.realm.add(newCategory)
+                }
+            }
+            categories = realm.objects(Category.self)
+        }
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -48,13 +66,16 @@ extension CategoriesTableViewController {
   }
   
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) 
+    let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+    
+    let category = categories[indexPath.row]
+    cell.textLabel?.text = category.name
     
     return cell
   }
     
   override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath {
-    
+    selectedCategory = categories[indexPath.row]
     return indexPath
   }
 }

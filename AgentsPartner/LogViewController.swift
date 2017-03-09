@@ -25,8 +25,8 @@ import MapKit
 
 class LogViewController: UITableViewController {
   
-  var specimens = []
-  var searchResults = []
+    var specimens:[String] = []
+    var searchResults:[String] = []
   
   @IBOutlet weak var segmentedControl: UISegmentedControl!
   
